@@ -1,0 +1,7 @@
+{
+    "current_time": "2026-03-20T17:40:47.923935",
+    "next_run_time": "2026-03-20T18:00:00",
+    "seconds_until_next_run": 1152.08,
+    "cron_schedule": "0 * * * *",
+    "status": "waiting"
+}

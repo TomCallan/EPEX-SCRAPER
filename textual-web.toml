@@ -1,0 +1,2 @@
+[app.epex]
+command = "python dashboard.py"

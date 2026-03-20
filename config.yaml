@@ -1,0 +1,46 @@
+# Scraper Scheduler Configuration
+
+# Standard cron expression (e.g. "0 * * * *" for every hour, "0 0 * * *" for midnight)
+# Platform agnostic scheduling controlled by scheduler.py
+cron: "0 * * * *"
+
+# ==========================================
+# EPEX SPOT Scraper Settings
+# These map directly to the CLI arguments in scaper.py
+# Only specified values will overwrite the defaults
+# ==========================================
+
+# Market parameters
+market_area: 
+  - DE
+  - FR
+auction: 
+  - ""
+modality: 
+  - Continuous
+sub_modality: 
+  - ""
+technology: 
+  - ""
+
+# Date parameters
+trading_date: 
+  - ""
+delivery_date: 
+  - "2026-03-20"
+underlying_year: 
+  - ""
+
+# Data format parameters
+data_mode: 
+  - table
+period: 
+  - ""
+production_period: 
+  - ""
+product: 
+  - "30"
+  - "60"
+
+# Optional output directory config (defaults to data/ epex_data_{timestamp}.csv)
+# output: "data/"

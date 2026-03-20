@@ -1,0 +1,6 @@
+pandas
+playwright
+textual
+textual-web
+croniter
+PyYAML
