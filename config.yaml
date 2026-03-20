@@ -1,8 +1,8 @@
 # Scraper Scheduler Configuration
 
-# Standard cron expression (e.g. "0 * * * *" for every hour, "0 0 * * *" for midnight)
+# Standard cron expression (e.g. "0 * * * *" for every hour, "*/30 * * * *" for every half hour)
 # Platform agnostic scheduling controlled by scheduler.py
-cron: "0 * * * *"
+cron: "*/30 * * * *"
 
 # ==========================================
 # EPEX SPOT Scraper Settings
