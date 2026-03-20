@@ -1,22 +1,22 @@
 # EPEX SPOT Scraper & Monitoring Dashboard
 
-A robust, enterprise-ready Python toolkit designed to scrape market results directly from the [EPEX SPOT](https://www.epexspot.com/en/market-results) energy exchange. It bypasses complex JavaScript-rendered tables using Headless Chromium via Playwright, and features a completely decoupled Weights & Biases (W&B) style terminal dashboard to monitor all your ongoing cron jobs, view extraction statistics, and explore CSV data.
+This is a toolkit to scrape market results directly from the [EPEX SPOT](https://www.epexspot.com/en/market-results) energy exchange. Since EPEX uses complex JavaScript-rendered tables, this scraper uses Headless Chromium (Playwright) to reliably extract the data.
 
 ## Features
 
-- ⚡ **Playwright Engine:** Gracefully handles EPEX's dynamic JS loading and seamlessly extracts correct HTML datasets bypassing standard `requests` limitations.
-- 🔀 **Combinatorial Scraping:** Supply multiple arguments for parameters like `--market_area DE FR` or `--modality Continuous Auction`. The scraper will dynamically compute all combinations and extract them via a single browser session concurrently.
-- 📊 **Unified Dataframe:** Automatically stacks cross-country and cross-modality pulls into a single exported CSV file tagged with source-query context parameters.
-- 📡 **Telemetry Logging:** Natively hooks into a local SQLite database (`epex_metrics.db`) to record active status, rows downloaded, MB sizes, start/end timestamps, and traceback exceptions.
-- 🖥️ **Textual TUI Dashboard:** A real-time, terminal-based monitoring dashboard providing insight into metric key-performance indicators, cron expectations, live run history, and a built-in Data Explorer.
+- **Config-Driven:** You can manage all scraping arguments and schedules through a single `config.yaml` file.
+- **Platform-Agnostic Scheduling:** It includes a scheduling script (`scheduler.py`) that uses cron expressions and runs in the background on Windows, macOS, and Linux without needing native cron.
+- **Combinatorial Scraping:** You can provide multiple parameters (e.g., DE and FR, or Continuous and Auction). The scraper computes all combinations and extracts them in a single browser session.
+- **Unified Dataframe:** The scraper merges data from multiple countries or modalities into a single CSV file inside the `data/` directory.
+- **Telemetry & Dashboard:** It logs metrics to a local SQLite database (`epex_metrics.db`), tracking active status, rows downloaded, and file sizes. There is also a Textual TUI dashboard to view metrics and explore the extracted data.
 
 ## Installation
 
-Ensure you have Python 3.9+ installed.
+You will need Python 3.9 or newer.
 
-1. Install the required Python packages:
+1. Install the required Python dependencies:
 ```bash
-pip install pandas playwright textual textual-web croniter
+pip install -r requirements.txt
 ```
 
 2. Install the Playwright Chromium binaries:
@@ -24,58 +24,57 @@ pip install pandas playwright textual textual-web croniter
 playwright install chromium
 ```
 
-## 1. Using the Scraper (`scaper.py`)
+## Usage
 
-The scraper operates completely independently and expects standard CLI interactions. It supports native OS cron job execution (Windows Task Scheduler, Linux Cron). 
+### 1. Configuration (config.yaml)
+Create or edit your `config.yaml` to set your desired EPEX parameters and scheduling frequency.
 
-To extract continuous trading results manually for France and Germany in a single sweep:
+```yaml
+# Run every 30 minutes
+cron: "*/30 * * * *"
 
-```bash
-python scaper.py --market_area DE FR --modality Continuous
+market_area: 
+  - DE
+  - FR
+modality: 
+  - Continuous
+product: 
+  - "30"
+  - "60"
+# CSVs will be saved to data/ automatically
 ```
 
-### Full Parameter List
-
-*All parameters natively support passing multiple space-separated strings to auto-generate combinations!*
-
-| Parameter | Default | Example |
-| :--- | :--- | :--- |
-| **`--market_area`** | `DE` | `--market_area DE FR GB` |
-| **`--modality`** | `Continuous` | `--modality Continuous Auction` |
-| **`--product`** | `30` | `--product 15 30 60` |
-| **`--delivery_date`** | `2026-03-19` | `--delivery_date 2026-03-19 2026-03-20` |
-| **`--auction`** | `""` |  |
-| **`--trading_date`** | `""` |  |
-| **`--output`** | *(Auto timestamp CSV)* | `--output epex_pull.csv` |
-
-#### Telemetry Arguments
-
-By passing telemetry variables, the scraper knows how to report itself to the Monitoring TUI.
+### 2. Automated Scheduling (Recommended)
+Run the built-in scheduler to run your scraping jobs in the background:
 
 ```bash
-python scaper.py --market_area DE --job_name "Daily Germany Pull" --cron_schedule "0 14 * * *"
+python scheduler.py --config config.yaml
+```
+Note: The scheduler continuously updates `scheduler_status.json` with the countdown to the next run, which can be hooked into dashboards or external tools.
+
+### 3. Manual Scraper Usage
+If you just want to run a single scrape manually, you can use `scaper.py`. You can still pass in the YAML config, or override arguments directly using CLI flags:
+
+```bash
+# Run once using config defaults
+python scaper.py --config config.yaml
+
+# Run once ignoring config, using standard CLI flags
+python scaper.py --market_area DE FR --modality Continuous --product 30
 ```
 
-- **`--job_name`**: Provides a clean name tag on the dashboard logs.
-- **`--cron_schedule`**: Notifies the dashboard of its intended schedule via UNIX cron syntax, allowing the TUI to calculate the "Time Until Next Run" countdowns automatically.
+## Monitoring Dashboard
 
-## 2. Using the Monitoring TUI Dashboard (`dashboard.py`)
+The toolkit includes a live terminal dashboard to view your scraping history and browse extracted tables.
 
-Run the monitoring dashboard directly from your terminal. It will watch `epex_metrics.db` and auto-refresh every few seconds.
-
+**Run locally in terminal:**
 ```bash
 python dashboard.py
 ```
 
-### Textual-Web Integration 🌐
-
-To access this dashboard beautifully formatted in your local web browser, you can proxy the command using `textual-web`:
-
+**Run in your browser:**
+You can broadcast the terminal UI securely to a local web browser using `textual-web`:
 ```bash
 textual-web --run "python dashboard.py"
 ```
-It will output an `http://` localhost link that you can click to manage and explore your datasets directly in Chrome/Firefox.
-
-### Dashboard Tabs
-1. **W&B Overview Dashboard**: View aggregated MB downloaded and Total Rows sizes. Keep track of live Active Chron Jobs reporting, and see history of successful/failed data extractions.
-2. **Data Explorer**: Instantly select and load previously generated CSV files natively in a fast Terminal/Browser Data Table rendering to view exactly what scripts have pulled.
+This generates a localhost link you can open to manage and explore your datasets directly in the browser.
