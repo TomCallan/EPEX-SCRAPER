@@ -4,11 +4,11 @@ This is a toolkit to scrape market results directly from the [EPEX SPOT](https:/
 
 ## Features
 
-- **Config-Driven:** You can manage all scraping arguments and schedules through a single `config.yaml` file.
-- **Platform-Agnostic Scheduling:** It includes a scheduling script (`scheduler.py`) that uses cron expressions and runs in the background on Windows, macOS, and Linux without needing native cron.
-- **Combinatorial Scraping:** You can provide multiple parameters (e.g., DE and FR, or Continuous and Auction). The scraper computes all combinations and extracts them in a single browser session.
+- **Config-Driven:** Manage all scraping arguments and schedules through a single `config.yaml` file.
+- **Native VPS Scheduling:** Includes a setup script (`setup_cron.sh`) that reads your YAML config and automatically deploys the scraper to your native Linux cron daemon.
+- **Combinatorial Scraping:** Provide multiple parameters (e.g., DE and FR, or Continuous and Auction). The scraper computes all combinations and extracts them in a single browser session.
 - **Unified Dataframe:** The scraper merges data from multiple countries or modalities into a single CSV file inside the `data/` directory.
-- **Telemetry:** It logs metrics to a local SQLite database (`epex_metrics.db`), tracking active status, rows downloaded, and file sizes.
+- **Lightweight Web Dashboard:** Host a fast, single-file Flask web server (`web_dashboard.py`) to monitor your database logs, view extracted row amounts, and monitor cron success rates externally from any browser.
 
 ## Installation
 
@@ -44,15 +44,25 @@ product:
 # CSVs will be saved to data/ automatically
 ```
 
-### 2. Automated Scheduling (Recommended)
-Run the built-in scheduler to run your scraping jobs in the background:
+### 2. VPS Automated Scheduling
+To run the scraper securely in the background using the native Linux daemon, run the setup script:
 
 ```bash
-python scheduler.py --config config.yaml
+chmod +x setup_cron.sh
+./setup_cron.sh
 ```
-Note: The scheduler continuously updates `scheduler_status.json` with the countdown to the next run, which can be hooked into dashboards or external tools.
+Note: You can view the live stdout logs of the scheduled runs natively via `tail -f cron_scraper.log`.
 
-### 3. Manual Scraper Usage
+### 3. Web Monitoring Dashboard
+Deploy the included backend UI to view your statistics from any device. It runs directly on Port 80.
+
+```bash
+# Recommended to run inside tmux or systemctl for persistence
+sudo python web_dashboard.py
+```
+Open your server's public IP address in any browser to view the generated EPEX Dashboard.
+
+### 4. Manual Scraper Usage
 If you just want to run a single scrape manually, you can use `scaper.py`. You can still pass in the YAML config, or override arguments directly using CLI flags:
 
 ```bash
