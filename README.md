@@ -1,4 +1,4 @@
-# EPEX SPOT Scraper & Monitoring Dashboard
+# EPEX SPOT Scraper
 
 This is a toolkit to scrape market results directly from the [EPEX SPOT](https://www.epexspot.com/en/market-results) energy exchange. Since EPEX uses complex JavaScript-rendered tables, this scraper uses Headless Chromium (Playwright) to reliably extract the data.
 
@@ -8,7 +8,7 @@ This is a toolkit to scrape market results directly from the [EPEX SPOT](https:/
 - **Platform-Agnostic Scheduling:** It includes a scheduling script (`scheduler.py`) that uses cron expressions and runs in the background on Windows, macOS, and Linux without needing native cron.
 - **Combinatorial Scraping:** You can provide multiple parameters (e.g., DE and FR, or Continuous and Auction). The scraper computes all combinations and extracts them in a single browser session.
 - **Unified Dataframe:** The scraper merges data from multiple countries or modalities into a single CSV file inside the `data/` directory.
-- **Telemetry & Dashboard:** It logs metrics to a local SQLite database (`epex_metrics.db`), tracking active status, rows downloaded, and file sizes. There is also a Textual TUI dashboard to view metrics and explore the extracted data.
+- **Telemetry:** It logs metrics to a local SQLite database (`epex_metrics.db`), tracking active status, rows downloaded, and file sizes.
 
 ## Installation
 
@@ -62,19 +62,3 @@ python scaper.py --config config.yaml
 # Run once ignoring config, using standard CLI flags
 python scaper.py --market_area DE FR --modality Continuous --product 30
 ```
-
-## Monitoring Dashboard
-
-The toolkit includes a live terminal dashboard to view your scraping history and browse extracted tables.
-
-**Run locally in terminal:**
-```bash
-python dashboard.py
-```
-
-**Run in your browser:**
-You can broadcast the terminal UI securely to a local web browser using `textual-web`:
-```bash
-textual-web --run "python dashboard.py"
-```
-This generates a localhost link you can open to manage and explore your datasets directly in the browser.
